@@ -89,6 +89,29 @@ toBigIntLE(null); // TypeError: toBigIntLE: expected a Buffer, got null
 
 **No native bindings.** The original ships N-API C++ bindings that fail silently in browsers and bundlers (the infamous `"bigint: Failed to load bindings"` warning). This package is pure JavaScript.
 
+## Benchmarks
+
+Pure JS, no native bindings. Tested on Apple Silicon (M-series), Node.js, 1M iterations each.
+
+| Operation | Size | Ops/sec |
+|---|---|---|
+| `toBigIntBE` | u64 (8 bytes) | 9,079,934 |
+| `toBigIntLE` | u64 (8 bytes) | 6,128,182 |
+| `toBigIntBE` | u128 (16 bytes) | 7,018,804 |
+| `toBigIntLE` | u128 (16 bytes) | 5,069,809 |
+| `toBufferBE` | u64 (8 bytes) | 5,569,161 |
+| `toBufferLE` | u64 (8 bytes) | 5,183,747 |
+| `toBufferBE` | u128 (16 bytes) | 7,063,305 |
+| `toBufferLE` | u128 (16 bytes) | 6,533,752 |
+
+For the u64 and u128 integers used in Solana programs (lamports, token amounts, timestamps), performance is more than sufficient. The original's N-API bindings were faster for very large buffers, but those sizes aren't used in Solana.
+
+Run benchmarks yourself:
+
+```bash
+npx tsx bench/index.ts
+```
+
 ## The long-term fix
 
 This package is a bridge for projects on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit) (web3.js v2), which has zero external dependencies and doesn't use `bigint-buffer` at all.
