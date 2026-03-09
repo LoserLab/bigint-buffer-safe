@@ -93,6 +93,14 @@ toBigIntLE(null); // TypeError: toBigIntLE: expected a Buffer, got null
 
 This package is a bridge for projects on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit) (web3.js v2), which has zero external dependencies and doesn't use `bigint-buffer` at all.
 
+## Author
+
+Created by **Heathen**
+
+Built in [Mirra](https://mirra.app)
+
 ## License
 
-MIT
+MIT License
+
+Copyright (c) 2026 Heathen
