@@ -1,0 +1,39 @@
+# bigint-buffer-safe
+
+> Safe, pure-JS drop-in replacement for bigint-buffer. Fixes CVE-2025-3194 (CVSS 7.5, buffer overflow). Zero dependencies, no native bindings, works in Node.js and browsers.
+
+## Install
+
+```bash
+npm install bigint-buffer-safe
+```
+
+## Drop-in replacement (recommended for Solana projects)
+
+Add to package.json overrides to replace bigint-buffer across your entire dependency tree:
+
+npm: `"overrides": { "bigint-buffer": "npm:bigint-buffer-safe@^1.0.0" }`
+yarn: `"resolutions": { "bigint-buffer": "npm:bigint-buffer-safe@^1.0.0" }`
+pnpm: `"pnpm": { "overrides": { "bigint-buffer": "npm:bigint-buffer-safe@^1.0.0" } }`
+
+Then: `rm -rf node_modules package-lock.json && npm install`
+
+## API
+
+```typescript
+import { toBigIntBE, toBigIntLE, toBufferBE, toBufferLE } from "bigint-buffer-safe";
+
+toBigIntBE(Buffer.from([0x01, 0x00])); // 256n
+toBigIntLE(Buffer.from([0x00, 0x01])); // 256n
+toBufferBE(256n, 2); // <Buffer 01 00>
+toBufferLE(256n, 2); // <Buffer 00 01>
+```
+
+## Why this exists
+
+bigint-buffer has CVE-2025-3194 and hasn't been updated since 2019. It affects every project using @solana/web3.js v1.x through: bigint-buffer → @solana/buffer-layout-utils → @solana/web3.js v1.x → @solana/wallet-adapter-*
+
+## Related
+
+- [solana-codemod](https://github.com/LoserLab/solana-codemod): Automated v1 to v2 migration
+- [solana-audit](https://github.com/LoserLab/solana-audit): Dependency auditor
