@@ -1,18 +1,20 @@
 # bigint-buffer-safe
 
-Safe, pure-JS drop-in replacement for [`bigint-buffer`](https://www.npmjs.com/package/bigint-buffer). Fixes [CVE-2025-3194](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg).
+Safe, pure-JS drop-in replacement for [`bigint-buffer`](https://www.npmjs.com/package/bigint-buffer). Fixes [CVE-2025-3194](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg) (CVSS 7.5, buffer overflow / DoS).
 
-## Why?
+Zero dependencies. No native bindings. Works in Node.js and browsers.
 
-The original `bigint-buffer` package has a **high-severity buffer overflow vulnerability** (CVSS 7.5) that crashes your process when `toBigIntLE(null)` or other invalid input is passed. The maintainer hasn't published an update since October 2019.
+## Why does this exist?
 
-This affects the entire Solana ecosystem through the dependency chain:
+The original `bigint-buffer` package has a **high-severity buffer overflow vulnerability** ([CVE-2025-3194](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg), CVSS 7.5) that crashes your process when `toBigIntLE(null)` or other invalid input is passed. The maintainer hasn't published an update since October 2019. The [`@solana/buffer-layout-utils`](https://github.com/solana-labs/buffer-layout-utils) package that depends on it was archived in January 2025. No upstream fix is coming.
+
+This vulnerability affects the entire Solana ecosystem through the transitive dependency chain:
 
 ```
 bigint-buffer → @solana/buffer-layout-utils → @solana/web3.js v1.x → @solana/wallet-adapter-*
 ```
 
-**bigint-buffer-safe** is a zero-dependency, pure-JavaScript replacement with input validation. No native N-API bindings, no build step required, works in Node.js and browsers.
+**bigint-buffer-safe** is a pure-JavaScript replacement with proper input validation. API-compatible with `bigint-buffer@1.1.5`.
 
 ## Install
 
@@ -20,7 +22,7 @@ bigint-buffer → @solana/buffer-layout-utils → @solana/web3.js v1.x → @sola
 npm install bigint-buffer-safe
 ```
 
-### As a drop-in replacement (recommended for existing projects)
+### Drop-in replacement for Solana projects (recommended)
 
 Add to your `package.json` to replace `bigint-buffer` across your entire dependency tree:
 
@@ -53,10 +55,25 @@ Add to your `package.json` to replace `bigint-buffer` across your entire depende
 }
 ```
 
+**Using GitHub directly** (if not published to npm):
+```json
+{
+  "overrides": {
+    "bigint-buffer": "github:LoserLab/bigint-buffer-safe"
+  }
+}
+```
+
 Then reinstall:
 
 ```bash
 rm -rf node_modules package-lock.json && npm install
+```
+
+Verify the vulnerability is resolved:
+
+```bash
+npm audit
 ```
 
 ## API
@@ -112,9 +129,31 @@ Run benchmarks yourself:
 npx tsx bench/index.ts
 ```
 
+## FAQ
+
+### Who is affected?
+
+Any project using `@solana/web3.js` v1.x (versions 1.43.1 through 1.98.x). Run `npm ls bigint-buffer` to check if it's in your dependency tree.
+
+### Does this affect @solana/kit (web3.js v2)?
+
+No. `@solana/kit` has zero third-party dependencies and does not use `bigint-buffer`. If you've already migrated to Kit, you're not affected.
+
+### What about the "bigint: Failed to load bindings" warning?
+
+That warning comes from `bigint-buffer`'s native N-API bindings failing to load in bundled environments. Replacing with `bigint-buffer-safe` eliminates it since this package is pure JavaScript.
+
+### Is this a permanent fix?
+
+This is a bridge for projects still on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit), which has zero external dependencies.
+
+### How is this different from bigint-buffer-fixed?
+
+[`bigint-buffer-fixed`](https://www.npmjs.com/package/bigint-buffer-fixed) is another community fork. `bigint-buffer-safe` removes native N-API bindings entirely (eliminating the "Failed to load bindings" warning), includes a full test suite with 64 tests, and provides TypeScript type definitions.
+
 ## The long-term fix
 
-This package is a bridge for projects on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit) (web3.js v2), which has zero external dependencies and doesn't use `bigint-buffer` at all.
+This package is a bridge for projects on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit) (web3.js v2), which has zero external dependencies and doesn't use `bigint-buffer` at all. The Solana Foundation also released [ConnectorKit](https://www.connectorkit.dev/) (`@solana/connector`) as the modern replacement for the wallet adapter ecosystem with dual v1/v2 support.
 
 ## Author
 
