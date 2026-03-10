@@ -1,5 +1,9 @@
 # bigint-buffer-safe
 
+<p align="center">
+  <img src="social/heathen-bigint-buffer-safe-card.png" alt="bigint-buffer-safe" width="100%">
+</p>
+
 Safe, pure-JS drop-in replacement for [`bigint-buffer`](https://www.npmjs.com/package/bigint-buffer). Fixes [CVE-2025-3194](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg) (CVSS 7.5, buffer overflow / DoS).
 
 Zero dependencies. No native bindings. Works in Node.js and browsers.
@@ -154,6 +158,19 @@ This is a bridge for projects still on `@solana/web3.js` v1.x. The permanent sol
 ## The long-term fix
 
 This package is a bridge for projects on `@solana/web3.js` v1.x. The permanent solution is migrating to [`@solana/kit`](https://github.com/anza-xyz/kit) (web3.js v2), which has zero external dependencies and doesn't use `bigint-buffer` at all. The Solana Foundation also released [ConnectorKit](https://www.connectorkit.dev/) (`@solana/connector`) as the modern replacement for the wallet adapter ecosystem with dual v1/v2 support.
+
+## Part of the Solana Migration Toolkit
+
+Four tools that work together to get your project from web3.js v1 to Kit v2:
+
+| Tool | What it does |
+|------|-------------|
+| [solana-deps](https://github.com/LoserLab/solana-deps) | Trace why legacy packages are in your tree |
+| [solana-audit](https://github.com/LoserLab/solana-audit) | Catch CVEs and deprecated APIs that `npm audit` misses |
+| [solana-codemod](https://github.com/LoserLab/solana-codemod) | Auto-migrate code from web3.js v1 to Kit v2 |
+| **bigint-buffer-safe** (this tool) | Drop-in CVE fix for bigint-buffer |
+
+**Recommended workflow:** `solana-deps` (find what's legacy) -> `solana-audit` (check for vulnerabilities) -> `solana-codemod` (fix the code) -> `solana-audit` (verify the result).
 
 ## Author
 
